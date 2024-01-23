@@ -1,17 +1,14 @@
-import { FAIL_CART_CALL, REQUEST_CART_CALL, SUCCESS_CART_CALL } from "./constant";
+import { CartApplication } from "./actionInterface";
+import { FAIL_CART_CALL, SUCCESS_CART_CALL } from "./constant";
 
-
-export const cartRequest = (payload:any) => ({
-    type:REQUEST_CART_CALL,
-    payload,
-})
-
-export const cartSuccess = (payload:any) => ({
+export const cartSuccess = (payload: any):CartApplication => {
+    console.log('payload', payload)
+    return ({
     type:SUCCESS_CART_CALL,
     payload,
-})
+})}
 
-export const cartFail = (error:any) => ({
+export const cartFail = (error:any):CartApplication => ({
     type:FAIL_CART_CALL,
     payload:error,
 })

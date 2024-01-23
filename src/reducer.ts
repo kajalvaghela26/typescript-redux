@@ -1,21 +1,26 @@
 
-import { REQUEST_CART_CALL } from "./constant";
-import {PayloadAction} from '@reduxjs/toolkit'
+import { FAIL_CART_CALL, SUCCESS_CART_CALL } from "./constant";
+import { CartApplication } from "./actionInterface";
 
-interface stateTypeDefine{
-  menuList: (string|number)[],
+interface CartState {
+  menuList: any; 
 }
-const initialState:stateTypeDefine = {
-    menuList: []
+const initialState:CartState = {
+    menuList: null
 }
-type cartAction = {
-  type: typeof REQUEST_CART_CALL
-}
-const reducerCart = (state : stateTypeDefine=initialState, action:PayloadAction<cartAction>) => {
+
+  
+const reducerCart = (state = initialState, action:CartApplication) => {
   switch (action.type)
   {
-    case REQUEST_CART_CALL:
-      return{...state,menuList:action.payload}
+    // case REQUEST_CART_CALL:
+    //   return { ...state, menuList: action.payload }
+    case SUCCESS_CART_CALL:
+      return { ...state, menuList: action.payload }
+      case FAIL_CART_CALL:
+      return { ...state, menuList: action.payload }
+    default:
+      return state
   }
 }
 export default reducerCart

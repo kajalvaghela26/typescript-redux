@@ -1,15 +1,19 @@
 import { styled, useTheme } from '@mui/material/styles';
 import {  Box, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import React, { useState } from 'react'
-import MailIcon from '@mui/icons-material/Mail';
+import React, { useEffect, useState } from 'react'
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { CartList } from './storeApi';
+interface openInter{
+  open:boolean
+}
 
 const drawerWidth = 180;
-  const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(({ theme, open }) => ({
+  const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<openInter>(({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -26,17 +30,20 @@ const drawerWidth = 180;
     }),
   }));
  
-const MenuItems = () =>
+const MenuItems:React.FC = () =>
 {
     const theme = useTheme();
   const [open, setOpen] =useState(true);
+  const disptach = useDispatch();
+  const CatagoryList = useSelector((state:any) => state?.cart?.menuList?.categories)
+  console.log('CatagoryList:::',CatagoryList )
+  useEffect(() => {
+    disptach(CartList())
+  }, []);
 
-
-
-  
   const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
-  })(({ theme, open }) => ({
+  })<openInter>(({ theme, open }) => ({
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
