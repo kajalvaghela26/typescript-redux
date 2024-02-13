@@ -1,26 +1,33 @@
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { CartState, apiResponse } from "./interfaceFile";
+import { rootState } from "./stores";
 
-import { FAIL_CART_CALL, SUCCESS_CART_CALL } from "./constant";
-import { CartApplication } from "./actionInterface";
-
-interface CartState {
-  menuList: any; 
-}
-const initialState:CartState = {
-    menuList: null
-}
-
-  
-const reducerCart = (state = initialState, action:CartApplication) => {
-  switch (action.type)
-  {
-    // case REQUEST_CART_CALL:
-    //   return { ...state, menuList: action.payload }
-    case SUCCESS_CART_CALL:
-      return { ...state, menuList: action.payload }
-      case FAIL_CART_CALL:
-      return { ...state, menuList: action.payload }
-    default:
-      return state
+const initialState: CartState = {
+  cart: [],
+  loading: false,
+  error: null,
+};
+const cartReducer = createSlice({
+  name: 'cart',
+  initialState,
+  reducers: {
+    requestCart(state) {
+      state.loading = true;
+      state.error = '';
+    },
+    SuccessCart(state, action: PayloadAction<apiResponse[]>) {
+      state.loading = false;
+      state.cart = action.payload;
+    },
+    FailCart(state, action: PayloadAction<string>) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    
   }
-}
-export default reducerCart
+})
+export const cartAction = cartReducer.actions;
+
+export const getCartData= (state:rootState)=> state.cart.cart;
+const reducerCart=cartReducer.reducer;
+export default reducerCart;

@@ -1,22 +1,17 @@
-import axios from "axios";
-import { cartFail, cartSuccess } from "./action";
-import { Dispatch } from "redux";
-import { CartApplication } from "./actionInterface";
-import { ThunkAction } from "redux-thunk";
-import { RootState } from "./combineReducer";
+import axios, { AxiosResponse } from "axios";
+import { put, takeEvery } from "redux-saga/effects";
+import { cartAction } from "./reducer";
+import { apiResponse } from "./interfaceFile";
 
-
-export const CartList =  (): ThunkAction<void, RootState,null, CartApplication> => {
-    return async (dispatch: Dispatch<CartApplication>): Promise<void>=> {
+function* apiCall() {
         try {
-        const response =  await axios.get('https://www.themealdb.com/api/json/v1/1/categories.php')
-    
-           dispatch(cartSuccess(response&&response.data))
-       } catch (error) {
-          
-          dispatch(cartFail(error))
+                const response: AxiosResponse<apiResponse[]> = yield axios.get('https://www.themealdb.com/api/json/v1/1/categories.php')
+                yield put(cartAction.SuccessCart(response.data))
+        } catch (error:any) {
+                yield put(cartAction.FailCart(error))
         }
-        return undefined as unknown as Promise<void>;
 }
-    
+
+export function* defaultApicall() {
+        yield takeEvery(cartAction.requestCart, apiCall)
 }

@@ -7,7 +7,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { CartList } from './storeApi';
+import { cartAction } from './reducer';
+
 interface openInter{
   open:boolean
 }
@@ -35,11 +36,11 @@ const MenuItems:React.FC = () =>
     const theme = useTheme();
   const [open, setOpen] =useState(true);
   const disptach = useDispatch();
-  const CatagoryList = useSelector((state:any) => state?.cart?.menuList?.categories)
-  console.log('CatagoryList:::',CatagoryList )
+  // const CatagoryList = useSelector((state:any) => state?.cart?.menuList?.categories)
+  // console.log('CatagoryList:::',CatagoryList )
   useEffect(() => {
-    disptach(CartList())
-  }, []);
+    disptach(cartAction.requestCart());
+  }, [disptach]);
 
   const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
