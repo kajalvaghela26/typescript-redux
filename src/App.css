@@ -37,12 +37,24 @@
   }
 }
 
-.css-nnoitl-MuiPaper-root-MuiAppBar-root {
+.css-ciy9n4-MuiPaper-root-MuiAppBar-root {
   background-color: #bfbfbf !important;
   color: black !important;
 }
 
-.css-ciy9n4-MuiPaper-root-MuiAppBar-root {
+.css-1d1g25z-MuiPaper-root-MuiAppBar-root {
   background-color: #bfbfbf !important;
   color: black !important;
+}
+.main-div{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+.sub-div{
+  /* width: 50%; */
+  /* margin: 10px; */
+}
+.btn-color{
+    color: gray !important;
 }

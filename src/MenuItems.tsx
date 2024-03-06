@@ -1,165 +1,267 @@
-import { styled, useTheme } from '@mui/material/styles';
-import {  Box, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react'
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import { useDispatch, useSelector } from 'react-redux';
-import { cartAction } from './reducer';
+import { styled } from "@mui/material/styles";
+import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  CssBaseline,
+  Grid,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import MuiAppBar from "@mui/material/AppBar";
+import { useDispatch, useSelector } from "react-redux";
+import { cartAction } from "./reducer";
+import SideBar from "./sideBar";
 
-interface openInter{
-  open:boolean
+interface openInter {
+  open: boolean;
 }
+interface ItemType {
+  idCategor: string;
+  strCategory: string;
+  strCategoryDescription: string;
+  strCategoryThumb: string;
+}
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    },
+  })
+);
+const drawerWidth = 0;
+const Main = styled("main", {
+  shouldForwardProp: (prop) => prop !== "open",
+})<openInter>(({ theme, open }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+  transition: theme.transitions.create("margin", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  }),
+}));
 
-const drawerWidth = 180;
-  const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<openInter>(({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  }));
- 
-const MenuItems:React.FC = () =>
-{
-    const theme = useTheme();
-  const [open, setOpen] =useState(true);
+const MenuItems: React.FC = () => {
+  const classes = useStyles();
+  const [sidebar, setSidebar] = useState(false);
+  const [itemList, setItemList] = useState<ItemType[]>([]);
   const disptach = useDispatch();
-  // const CatagoryList = useSelector((state:any) => state?.cart?.menuList?.categories)
-  // console.log('CatagoryList:::',CatagoryList )
+  const CatagoryList = useSelector(
+    (state: any) => state?.cart?.cart?.categories
+  );
   useEffect(() => {
     disptach(cartAction.requestCart());
   }, [disptach]);
 
+  useEffect(() => {
+    if (CatagoryList?.length > 0) {
+      const addKey =
+        CatagoryList?.length > 0 &&
+        CatagoryList?.map((el: any) => {
+          return {
+            ...el,
+            addBtn: false,
+            qty: 1,
+          };
+        });
+      setItemList(addKey);
+    }
+  }, [CatagoryList]);
+
+  useEffect(() => {
+    if (itemList && itemList.length > 0) {
+      const filterCart =
+        itemList &&
+        itemList.length > 0 &&
+        itemList.filter((el: any) => el.addBtn === true);
+      sessionStorage.setItem("CartList", JSON.stringify(filterCart));
+    }
+  }, [itemList]);
   const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
+    shouldForwardProp: (prop) => prop !== "open",
   })<openInter>(({ theme, open }) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     ...(open && {
       width: `calc(100% - ${drawerWidth}px)`,
       marginLeft: `${drawerWidth}px`,
-      transition: theme.transitions.create(['margin', 'width'], {
+      transition: theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
     }),
   }));
-  
-  const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
+
+  const DrawerHeader = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
     padding: theme.spacing(0, 1),
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   }));
-  
-  const handleDrawerOpen = () => {
-    setOpen(true);
+
+  const handleCount = (icon: string, data: any) => {
+    if (icon === "+") {
+      const incrment =
+        
+        (itemList?.map((els: any) => {
+          if (els.idCategory === data.idCategory) {
+            return {
+              ...els,
+              qty: els.qty + 1,
+            };
+          }
+          return els;
+        }) as ItemType[]);
+        const setData= incrment?.filter((es:any)=>es.addBtn=== true)
+        sessionStorage.setItem("CartList", JSON.stringify(setData))
+      setItemList(incrment);
+    }
+    if (icon === "-") {
+      const decrment =
+        (itemList?.map((els: any) => {
+          if (els.idCategory === data.idCategory) {
+            return {
+              ...els,
+              qty: els.qty - 1,
+            };
+          }
+          return els;
+        }) as ItemType[]);
+        const setData= decrment?.filter((es:any)=>es.addBtn=== true)
+        sessionStorage.setItem("CartList", JSON.stringify(setData))
+      setItemList(decrment);
+    }
   };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleAddBtn = (data: any) => {
+    const BtnAdd =
+      
+      (itemList?.map((els: any) => {
+        if (els.idCategory === data.idCategory) {
+          return {
+            ...els,
+            addBtn: true,
+          };
+        }
+        return els;
+      }) as ItemType[]);
+      setSidebar(false)
+    setItemList(BtnAdd);
   };
-    return (<>
-        <div>
-        <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-                Menu
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {/* {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => ( */}
-            <ListItem key='Cart' disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
+  return (
+    <>
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBar position="fixed" open={sidebar}>
+          <Toolbar>
+            <Grid container alignItems="center">
+              <Grid item xs={8} md={10}>
+                <Typography variant="h6" noWrap component="div">
+                  Menu
+                </Typography>
+              </Grid>
+              <Grid item xs={4} md={2}>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={() => setSidebar(true)}
+                  className="bg-color"
+                  sx={{ ...(sidebar && { display: "none" }) }}
+                >
                   <AddShoppingCartIcon />
-                </ListItemIcon>
-                <ListItemText primary='Cart' />
-              </ListItemButton>
-            </ListItem>
-          {/* ))} */}
-        </List>
-        
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </Main>
-    </Box>
-        </div>
-    </>)
-}
-export default MenuItems
+                </IconButton>
+              </Grid>
+            </Grid>
+          </Toolbar>
+        </AppBar>
+
+        <Main open={sidebar}>
+          <DrawerHeader />
+          <div className="main-div">
+            {
+              itemList?.map((e: any) => (
+                <>
+                  <div className="sub-div" key={e.idCategory}>
+                    <Card sx={{ maxWidth: 345 }} key={e.idCategory}>
+                      <CardMedia
+                        sx={{ height: 140 }}
+                        image={e.strCategoryThumb}
+                        title="green iguana"
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                          {e.strCategory}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          className={classes.root}
+                        >
+                          {e.strCategoryDescription}
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        {e.addBtn ? (
+                          <>
+                            <Button
+                              className="btn-color"
+                              onClick={() => handleCount("+", e)}
+                            >
+                              +
+                            </Button>
+                            {e.qty}
+                            <Button
+                              className="btn-color"
+                              onClick={() => handleCount("-", e)}
+                            >
+                              -
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            {" "}
+                            <Button
+                              className="btn-color"
+                              onClick={() => handleAddBtn(e)}
+                            >
+                              Add
+                            </Button>
+                          </>
+                        )}
+                      </CardActions>
+                    </Card>
+                  </div>
+                </>
+              ))}
+          </div>
+        </Main>
+        {sidebar && (
+          <>
+            <SideBar setSidebar={setSidebar} sidebar={sidebar} />
+          </>
+        )}
+      </Box>
+    </>
+  );
+};
+export default MenuItems;
